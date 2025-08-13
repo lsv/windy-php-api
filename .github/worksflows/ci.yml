@@ -1,0 +1,46 @@
+name: Ci
+on: [ push, pull_request ]
+
+jobs:
+  setup-no-coverage:
+    uses: ./.github/worksflows/setup.yml
+    with:
+      xdebug: none
+
+  setup-coverage:
+    uses: ./.github/worksflows/setup.yml
+    with:
+      xdebug: xdebug
+
+  csfixer:
+    runs-on: ubuntu-latest
+    needs: setup-no-coverage
+    steps:
+      - name: Run phpstan
+        env:
+          PHP_CS_FIXER_IGNORE_ENV: 1
+        run: vendor/bin/php-cs-fixer check
+
+  phpstan:
+    runs-on: ubuntu-latest
+    needs: setup-no-coverage
+    steps:
+      - name: Run phpstan
+        run: vendor/bin/phpstan
+
+  phpunit:
+    runs-on: ubuntu-latest
+    needs: setup-coverage
+    steps:
+      - name: Run tests
+        run: vendor/bin/phpunit --coverage-text --coverage-clover=.build/coverage/clover.xml
+
+      - name: Check coverage
+        run: vendor/bin/coverage-check .build/coverage/clover.xml 100
+
+  infection:
+    runs-on: ubuntu-latest
+    needs: setup-coverage
+    steps:
+      - name: Run infection
+        run: vendor/bin/infection --threads=max
