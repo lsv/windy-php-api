@@ -3,12 +3,12 @@ on: [ push, pull_request ]
 
 jobs:
   setup-no-coverage:
-    uses: ./.github/worksflows/setup.yml
+    uses: ./.github/workflows/setup.yml
     with:
       xdebug: none
 
   setup-coverage:
-    uses: ./.github/worksflows/setup.yml
+    uses: ./.github/workflows/setup.yml
     with:
       xdebug: xdebug
 
